@@ -34,6 +34,10 @@ var Editor = function () {
 
 		editorCleared: new Signal(),
 
+		selectionTypeChanged: new Signal(),
+		selectionCommandChanged: new Signal(),
+		selectionChanged: new Signal(),
+
 		savingStarted: new Signal(),
 		savingFinished: new Signal(),
 
@@ -108,6 +112,10 @@ var Editor = function () {
 
 	this.animations = {};
 	this.mixer = new THREE.AnimationMixer( this.scene );
+
+	this.selectionType = 'objects';
+	// this.selectionCommand = null;
+	this.selection = null;
 
 	this.selected = null;
 	this.helpers = {};
@@ -534,7 +542,60 @@ Editor.prototype = {
 
 	},
 
-	//
+	// selection
+
+	setSelectionType: function ( selectionType ) {
+
+		this.selectionType = selectionType;
+
+		this.signals.selectionTypeChanged.dispatch( selectionType );
+
+	},
+
+	setSelectionCommand: function ( command ) {
+
+		// this.selectionCommand = command;
+
+		this.selection = {
+			faces: [],
+			lines: [],
+			points: []
+		};
+
+		this.signals.selectionCommandChanged.dispatch( command );
+
+	},
+
+	setSelection: function ( intersects, method ) {
+
+		method = method || 'toggle';
+
+		// this.selection;
+
+		this.signals.selectionChanged.dispatch( this.selection );
+
+	},
+
+	addSelection: function ( intersects ) {
+
+		this.polygonSelect( intersects, 'add' );
+
+	},
+
+	removeSelection: function ( intersects ) {
+
+		this.polygonSelect( intersects, 'remove' );
+
+	},
+
+	emptySelection: function ( ) {
+
+		this.selectionCommand = null;
+		this.selection = null;
+
+	},
+
+	// select
 
 	select: function ( object ) {
 
@@ -657,6 +718,13 @@ Editor.prototype = {
 		this.history.fromJSON( json.history );
 		this.scripts = json.scripts;
 
+		if (this.selectionType !== json.selectionType) {
+			this.setSelectionType(json.selectionType);
+		}
+		if (this.selection !== json.selection) {
+			this.setSelection(json.selection);
+		}
+
 		loader.parse( json.scene, function ( scene ) {
 
 			scope.setScene( scene );
@@ -697,6 +765,8 @@ Editor.prototype = {
 				toneMapping: this.config.getKey( 'project/renderer/toneMapping' ),
 				toneMappingExposure: this.config.getKey( 'project/renderer/toneMappingExposure' )
 			},
+			selectionType: this.selectionType,
+			selection: this.selection,
 			camera: this.camera.toJSON(),
 			scene: this.scene.toJSON(),
 			scripts: this.scripts,

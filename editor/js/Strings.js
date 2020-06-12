@@ -36,6 +36,12 @@ var Strings = function ( config ) {
 			'menubar/edit/minify_shaders': 'Minify Shaders',
 			'menubar/edit/fixcolormaps': 'Fix Color Maps',
 
+			'menubar/select': 'Select',
+			'menubar/select/lines': 'Lines',
+			'menubar/select/points': 'Points',
+			'menubar/select/polygons': 'Polygons',
+			'menubar/select/objects': 'Objects',
+
 			'menubar/add': 'Add',
 			'menubar/add/group': 'Group',
 			'menubar/add/plane': 'Plane',
@@ -350,6 +356,12 @@ var Strings = function ( config ) {
 			'menubar/edit/minify_shaders': 'Minimiser les Shaders',
 			'menubar/edit/fixcolormaps': 'Correction des couleurs',
 
+			'menubar/select': 'Sélectionner',
+			'menubar/select/lines': 'Lignes',
+			'menubar/select/points': 'Points',
+			'menubar/select/polygons': 'Des polygones',
+			'menubar/select/objects': 'Objets',
+
 			'menubar/add': 'Ajouter',
 			'menubar/add/group': 'Groupe',
 			'menubar/add/plane': 'Plan',
@@ -663,6 +675,12 @@ var Strings = function ( config ) {
 			'menubar/edit/delete': '删除 (Del)',
 			'menubar/edit/minify_shaders': '压缩着色器',
 			'menubar/edit/fixcolormaps': '修复颜色贴图',
+
+			'menubar/select': '选择',
+			'menubar/select/lines': '线',
+			'menubar/select/points': '点数',
+			'menubar/edit/polygons': '多边形',
+			'menubar/edit/objects': '对象',
 
 			'menubar/add': '添加',
 			'menubar/add/group': '组',

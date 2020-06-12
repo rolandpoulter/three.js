@@ -38,6 +38,7 @@ var Viewport = function ( editor ) {
 	var sceneHelpers = editor.sceneHelpers;
 
 	var objects = [];
+	var polygons = [];
 
 	// helpers
 
@@ -160,13 +161,16 @@ var Viewport = function ( editor ) {
 
 	// events
 
-	function getIntersects( point, objects ) {
+	function getIntersects( point, objects, mode ) {
 
 		mouse.set( ( point.x * 2 ) - 1, - ( point.y * 2 ) + 1 );
 
 		raycaster.setFromCamera( mouse, camera );
 
-		return raycaster.intersectObjects( objects );
+		return raycaster.intersectObjects(
+			mode === 'polygons' ? polygons : objects,
+			mode === 'polygons',
+		);
 
 	}
 
@@ -181,13 +185,18 @@ var Viewport = function ( editor ) {
 
 	}
 
-	function handleClick() {
+	function handleClick( event ) {
 
 		if ( onDownPosition.distanceTo( onUpPosition ) === 0 ) {
 
-			var intersects = getIntersects( onUpPosition, objects );
+			var intersects = getIntersects( onUpPosition, objects, editor.mode );
 
-			if ( intersects.length > 0 ) {
+			if (editor.mode !== 'objects') {
+				// debugger;
+				console.log(event.shiftKey, event.shift, intersects[0], intersects);
+				editor.setSelection(intersects);
+
+			} else if ( intersects.length > 0 ) {
 
 				var object = intersects[ 0 ].object;
 
@@ -231,7 +240,7 @@ var Viewport = function ( editor ) {
 		var array = getMousePosition( container.dom, event.clientX, event.clientY );
 		onUpPosition.fromArray( array );
 
-		handleClick();
+		handleClick( event );
 
 		document.removeEventListener( 'mouseup', onMouseUp, false );
 
@@ -255,7 +264,7 @@ var Viewport = function ( editor ) {
 		var array = getMousePosition( container.dom, touch.clientX, touch.clientY );
 		onUpPosition.fromArray( array );
 
-		handleClick();
+		handleClick( event );
 
 		document.removeEventListener( 'touchend', onTouchEnd, false );
 
@@ -266,7 +275,7 @@ var Viewport = function ( editor ) {
 		var array = getMousePosition( container.dom, event.clientX, event.clientY );
 		onDoubleClickPosition.fromArray( array );
 
-		var intersects = getIntersects( onDoubleClickPosition, objects );
+		var intersects = getIntersects( onDoubleClickPosition, objects, 'objects' );
 
 		if ( intersects.length > 0 ) {
 
@@ -358,6 +367,36 @@ var Viewport = function ( editor ) {
 	} );
 
 	signals.cameraChanged.add( function () {
+
+		render();
+
+	} );
+
+	signals.selectionCommandChanged.add( function ( object ) {
+
+		if ( object === null ) {
+
+			polygons = [];
+
+		} else if ( object.editableMesh ) {
+
+			object.editableMesh.traverse( function ( child ) {
+
+				polygons.push( child );
+
+			} );
+
+		}
+
+	} );
+
+	signals.selectionChanged.add( function () {
+
+		render();
+
+	} );
+
+	signals.selectionTypeChanged.add( function () {
 
 		render();
 
