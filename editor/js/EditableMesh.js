@@ -44,45 +44,25 @@ function EditableMesh( originalMesh, editor ) {
 	// 	: new THREE.BufferGeometry.fromGeometry( this.originalGeometry );
 
 	this.mesh = new THREE.Mesh(
-		// this.bufferGeometry,
 		this.geometry,
 		this.originalMesh.material,
 	);
 
-	// this.mesh.visible = false;
-
-	// this.mesh.raycast = function () { return []; };
-
-	this.edges = new THREE.WireframeGeometry(
-	// this.edges = new THREE.EdgesGeometry(
-		// this.bufferGeometry
-		this.geometry
-	);
+	this.edges = new THREE.WireframeGeometry( this.geometry );
 
 	this.lines = new THREE.LineSegments( this.edges, new THREE.LineBasicMaterial( {
-		// linewidth: 10,
+		linewidth: 1,
 		color: 0xffffff,
-		// depthTest: false,
-		// opacity: 1,
-		// transparent: true,
 	} ) );
 
-	// this.lines.raycast = function () { return []; };
-
 	this.points = new THREE.Points(
-		// this.bufferGeometry,
 		this.geometry,
 		new THREE.PointsMaterial( {
 			sizeAttenuation: false,
-			size: 6,
+			size: 4,
 			color: 0x888888,
-			// depthTest: false,
-			// opacity: 1,
-			// transparent: true,
 		} )
 	);
-
-	// this.points.raycast = function () { return []; };
 
 	// this.add( this.mesh );
 	this.add( this.lines );
@@ -100,8 +80,6 @@ EditableMesh.prototype = Object.assign( Object.create( THREE.Object3D.prototype 
 
 	updateSelection: function () {
 
-		console.log('editor selection', this.editor.selection);
-
 		var selection = null;
 
 		var that = this;
@@ -110,13 +88,11 @@ EditableMesh.prototype = Object.assign( Object.create( THREE.Object3D.prototype 
 
 			var geometry = new THREE.Geometry();
 
-			this.editor.selection.faces.forEach(function ( face ) {
+			this.editor.selection.faces.forEach(function ( slug ) {
+
+				var face = that.editor.selection.faces.refs[slug];
 
 				var offset = geometry.vertices.length;
-
-				// geometry.vertices.push( that.bufferGeometry.getIndex( face.a ) );
-				// geometry.vertices.push( that.bufferGeometry.getIndex( face.b ) );
-				// geometry.vertices.push( that.bufferGeometry.getIndex( face.c ) );
 
 				geometry.vertices.push( that.geometry.vertices[ face.a ] );
 				geometry.vertices.push( that.geometry.vertices[ face.b ] );
@@ -128,7 +104,6 @@ EditableMesh.prototype = Object.assign( Object.create( THREE.Object3D.prototype 
 
 			});
 
-			// console.log('FACES', faces);
 			selection = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( {
 				color: 0xffffff,
 				depthTest: false,
@@ -143,7 +118,6 @@ EditableMesh.prototype = Object.assign( Object.create( THREE.Object3D.prototype 
 			this.editor.selection.points.forEach(function ( index ) {
 
 				geometry.vertices.push(
-					// that.bufferGeometry.getIndex( index )
 					that.geometry.vertices[ index ]
 				);
 
@@ -151,20 +125,39 @@ EditableMesh.prototype = Object.assign( Object.create( THREE.Object3D.prototype 
 
 			selection = new THREE.Points( geometry, new THREE.PointsMaterial( {
 				sizeAttenuation: false,
-				size: 12,
+				size: 8,
 				color: 0xffff00,
 				depthTest: false,
 			} ) );
 
-		// } else if (this.editor.selectionType === 'lines') {
+		} else if (this.editor.selectionType === 'lines') {
 
-			// var lines = this.editor.selection.lines.map(function ( index ) {
-			//
-			// 	return that.bufferGeometry.getIndex( index );
-			//
-			// });
+			var geometry = new THREE.Geometry();
 
-			// selection = null;
+			this.editor.selection.lines.forEach(function ( slug ) {
+
+				var line = that.editor.selection.lines.refs[slug];
+
+				// var offset = geometry.vertices.length;
+
+				geometry.vertices.push( that.geometry.vertices[ line[0] ] );
+				geometry.vertices.push( that.geometry.vertices[ line[1] ] );
+				// geometry.vertices.push( that.geometry.vertices[ line[2] ] );
+
+				// geometry.faces.push(
+				// 	new THREE.Face3( offset + 0, offset + 1, offset + 2 )
+				// );
+
+			});
+
+			// var wire = new THREE.EdgesGeometry( geometry );
+			// var wire = new THREE.WireframeGeometry( geometry );
+
+			selection = new THREE.Line( geometry, new THREE.LineBasicMaterial( {
+				linewidth: 2,
+				color: 0xffff00,
+				depthTest: false
+			} ) );
 
 		}
 

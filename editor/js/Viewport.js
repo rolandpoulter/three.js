@@ -169,10 +169,14 @@ var Viewport = function ( editor ) {
 
 		var selectionType = editor.selectionType;
 
-		return raycaster.intersectObjects(
+		var intersects = raycaster.intersectObjects(
 			selectionType !== 'objects' ? polygons : objects,
 			selectionType !== 'objects',
 		);
+
+		// console.log(selectionType, intersects);
+
+		return intersects;
 
 	}
 
@@ -194,7 +198,6 @@ var Viewport = function ( editor ) {
 			var intersects = getIntersects( onUpPosition );
 
 			if (editor.selectionType !== 'objects') {
-				// console.log(event.shiftKey, event.shift, intersects[0], intersects);
 
 				editor.setSelection( intersects[0] );
 
@@ -273,6 +276,10 @@ var Viewport = function ( editor ) {
 	}
 
 	function onDoubleClick( event ) {
+
+		if (editor.selectionType !== 'objects') {
+			return;
+		}
 
 		var array = getMousePosition( container.dom, event.clientX, event.clientY );
 		onDoubleClickPosition.fromArray( array );
@@ -378,7 +385,7 @@ var Viewport = function ( editor ) {
 
 		polygons = [];
 
-		if ( object.editableMesh ) {
+		if ( object && object.editableMesh ) {
 
 			var selectionType = editor.selectionType;
 
@@ -392,26 +399,7 @@ var Viewport = function ( editor ) {
 
 			}
 
-			if (selectionType === 'polygons') {
-
-				addPolygonObjects( object.editableMesh.mesh );
-				// addPolygonObjects( object.editableMesh.originalMesh );
-
-			} else if (selectionType === 'lines') {
-
-				addPolygonObjects( object.editableMesh.lines );
-
-			} else if (selectionType === 'points') {
-
-				addPolygonObjects( object.editableMesh.points );
-
-			// } else {
-			//
-			// 	addPolygonObjects( object.editableMesh );
-
-			}
-
-			// console.log(selectionType, polygons);
+			addPolygonObjects( object.editableMesh.mesh );
 
 		}
 

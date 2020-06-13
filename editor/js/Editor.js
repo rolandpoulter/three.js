@@ -114,7 +114,6 @@ var Editor = function () {
 	this.mixer = new THREE.AnimationMixer( this.scene );
 
 	this.selectionType = 'objects';
-	// this.selectionCommand = null;
 	this.selection = null;
 
 	this.selected = null;
@@ -554,39 +553,56 @@ Editor.prototype = {
 
 	setSelectionCommand: function ( command ) {
 
-		// this.selectionCommand = command;
-
 		this.signals.selectionCommandChanged.dispatch( command );
 
 	},
 
 	setSelection: function ( intersects, method ) {
 
+		if (!intersects) {
+			return;
+		}
+
 		method = method || 'toggle';
 
-		// this.selection;
-		// console.log( intersects, method, this.selectionType );
+		function operate( list, slug, value ) {
+			var index = list.indexOf( slug );
 
-		function operate(list, value) {
-			var index = list.indexOf(value);
+			function add () {
+				if ( value ) {
+					list.refs = list.refs || {};
+					list.refs[slug] = value;
+				}
 
-			if (method === 'toggle') {
+				list.push( slug );
+			}
 
-				if (index === -1) {
+			function remove () {
+				if ( value ) {
+					list.refs = list.refs || {};
+					delete list.refs[slug];
+				}
 
-					list.push(value);
+				list.splice( index, 1 );
+			}
+
+			if ( method === 'toggle' ) {
+
+				if ( index === -1 ) {
+
+					add();
 
 				} else {
 
-					list.splice(index, 1);
+					remove();
 
 				}
 
-			} else if (method === 'add') {
+			} else if ( method === 'add' ) {
 
-				if (index === -1) {
+				if ( index === -1 ) {
 
-					list.push(value);
+					add();
 
 				}
 
@@ -594,7 +610,7 @@ Editor.prototype = {
 
 				if (index !== -1) {
 
-					list.splice(index, 1);
+					remove();
 
 				}
 
@@ -607,19 +623,61 @@ Editor.prototype = {
 			points: []
 		};
 
-		console.log('GOTH HERE', intersects);
+		var face = intersects.face;
 
-		if (this.selectionType === 'polygons') {
+		if ( this.selectionType === 'polygons' ) {
 
-			operate(this.selection.faces, intersects.face);
+			var slug = [ face.a, face.b, face.c ].sort().join( ',' );
 
-		} else if (this.selectionType === 'points') {
+			operate( this.selection.faces, slug, face );
 
-			operate(this.selection.points, intersects.index);
+		} else {
 
-		// } else if (this.selectionType === 'lines') {
+			var geometry = intersects.object.geometry;
 
-			// operate(this.selection.lines, intersects.line);
+			var points = [
+				geometry.vertices[ face.a ],
+				geometry.vertices[ face.b ],
+				geometry.vertices[ face.c ],
+			];
+
+			var distances = points.map(function ( p ) {
+				return p.distanceTo( intersects.point );
+			});
+
+			var minDistance = Math.min.apply( Math, distances );
+
+			var faceIndex = distances.indexOf( minDistance );
+
+			var index = face[ [ 'a', 'b', 'c' ][ faceIndex ] ];
+
+			if ( this.selectionType === 'points' ) {
+
+				operate( this.selection.points, index, null );
+
+			} else if ( this.selectionType === 'lines' ) {
+
+				distances[ faceIndex ] = Infinity;
+
+				minDistance = Math.min.apply( Math, distances );
+
+				var nextFaceIndex = distances.indexOf( minDistance );
+
+				var nextIndex = face[ [ 'a', 'b', 'c' ][ nextFaceIndex ] ];
+
+				// distances[ nextFaceIndex ] = Infinity;
+
+				// minDistance = Math.min.apply( Math, distances );
+
+				// var lastFaceIndex = distances.indexOf( minDistance );
+
+				// var lastIndex = face[ [ 'a', 'b', 'c' ][ lastFaceIndex ] ];
+
+				var slug = [ index, nextIndex/* , lastIndex */ ].sort().join( ',' );
+
+				operate( this.selection.lines, slug, [ index, nextIndex/* , lastIndex */ ] );
+
+			}
 
 		}
 

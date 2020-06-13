@@ -42,8 +42,6 @@ var SetSelectionTypeCommand = function ( editor, object, selectionType, previous
 	this.setObject( object );
 	this.setSelectionType( selectionType );
 
-	// this.editor.setSelectionCommand( this );
-
 };
 
 SetSelectionTypeCommand.prototype = {
@@ -109,18 +107,7 @@ SetSelectionTypeCommand.prototype = {
 
 		this.pendingEditableMesh = true;
 
-		// var toJSON = object.toJSON;
-		// object.toJSON = function () {
-		// 	object.visible = true;
-		// 	return toJSON.call(object);
-		// };
-		// object.toJSON.original = toJSON;
-		// this.object.visible = false;
-
 		this.editor.sceneHelpers.add( this.editableMesh );
-
-		// this.editor.removeObject( this.object );
-		// this.editor.addObject( this.editableMesh );
 
 		this.editor.deselect();
 
@@ -136,18 +123,13 @@ SetSelectionTypeCommand.prototype = {
 
 		this.editableMesh.removeHandler();
 
-		this.editor.removeObject( this.editableMesh );
-		// this.editableMesh.parent.remove( this.editableMesh );
+		this.editableMesh.parent.remove( this.editableMesh );
 
 		var object = this.object;
 
 		if ( commitBufferChanges ) {
 			// TODO:
 		}
-
-		// object.toJSON = object.toJSON.original || object.toJSON;
-		// object.visible = true;
-		// this.editor.addObject( object );
 
 		this.editor.select( object );
 
