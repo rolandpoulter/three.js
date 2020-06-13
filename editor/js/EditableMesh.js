@@ -13,7 +13,7 @@ function EditableMesh( originalMesh, editor ) {
 
 	this.selectionChangedHandler = function () {
 
-		that.updateSelection( editor.selection );
+		that.updateSelection( );
 
 	};
 
@@ -67,6 +67,8 @@ function EditableMesh( originalMesh, editor ) {
 
 	this.type = 'EditableMesh';
 
+	this.updateSelection();
+
 }
 
 EditableMesh.prototype = Object.assign( Object.create( THREE.Object3D.prototype ), {
@@ -92,6 +94,77 @@ EditableMesh.prototype = Object.assign( Object.create( THREE.Object3D.prototype 
 			this.add( selection );
 
 		}
+
+	},
+
+	moveGeometry: function ( offset ) {
+
+		var that = this;
+
+		// this.editor.selection.faces.forEach( function ( slug ) {
+		//
+		// 	var face = that.editor.selection.faces.refs[slug];
+		//
+		// 	var a = that.geometry.vertices[ face.a ];
+		// 	var b = that.geometry.vertices[ face.b ];
+		// 	var c = that.geometry.vertices[ face.c ];
+		//
+		// 	a.add( offset );
+		// 	b.add( offset );
+		// 	c.add( offset );
+		//
+		// } );
+
+		// this.editor.selection.lines.forEach( function ( slug ) {
+		//
+		// 	var line = that.editor.selection.lines.refs[slug];
+		//
+		// 	var a = that.geometry.vertices[ line[0] ];
+		// 	var b = that.geometry.vertices[ line[1] ];
+		//
+		// 	a.add( offset );
+		// 	b.add( offset );
+		//
+		// } );
+
+		this.editor.selection.points.forEach( function ( point ) {
+
+			var p = that.geometry.vertices[ point ];
+
+			p.add( offset );
+
+			// if ( that.originalGeometry.isBufferGeometry ) {
+			// 	that.originalGeometry.setInde[ point ].copy( p );
+			// } else {
+			// 	that.originalGeometry.vertices[ point ].copy( p );
+			// }
+
+		} );
+
+		this.geometry.verticesNeedUpdate = true;
+		this.geometry.elementsNeedUpdate = true;
+		this.geometry.normalsNeedUpdate = true;
+
+		// this.editor.removeObject( this.originalMesh );
+		// this.originalMesh.parent.remove( this.originalMesh );
+
+		// var newMesh = new THREE.Mesh( this.geometry, this.originalMesh.material );
+		// newMesh.copy( this.originalMesh, false );
+		// this.newMesh = newMesh;
+		// this.editor.addObject( newMesh );
+
+		// if ( this.originalGeometry.isBufferGeometry ) {
+		// 	this.originalGeometry.fromGeometry( this.geometry );
+		// } else {
+		// 	this.originalGeometry.copy( this.geometry );
+		// }
+
+		// this.originalGeometry.verticesNeedUpdate = true;
+		// this.originalGeometry.elementsNeedUpdate = true;
+		// this.originalGeometry.normalsNeedUpdate = true;
+
+		// this.originalGeometry.colorsNeedUpdate = true;
+		// this.originalGeometry.uvsNeedUpdate = true;
 
 	}
 

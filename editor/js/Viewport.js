@@ -407,30 +407,24 @@ var Viewport = function ( editor ) {
 
 	signals.selectionChanged.add( function ( info ) {
 
-		var object = info.object;
-		var editableMesh = object.editableMesh || object;
-		var selection = editableMesh.selection;
-
-		console.log(info);
-
 		selectionBox.visible = false;
 		transformControls.detach();
 
-		if ( selection ) {
+		setTimeout( function () {
 
-			// console.log('GOT HERE', selection);
-			// box.setFromObject( selection );
-			// if ( box.isEmpty() === false ) {
-				// selectionBox.setFromObject( selection );
-				// selectionBox.visible = true;
-			// }
+			var object = info.object;
+			var editableMesh = info.editableMesh;
+			var selection = editableMesh.selection;
 
-			transformControls.attach( selection );
+			if ( selection && !selection.empty ) {
 
-		}
+				transformControls.attach( selection );
 
-		// setTimeout(render, 0);
-		render();
+			}
+
+			render();
+
+		}, 0 );
 
 	} );
 

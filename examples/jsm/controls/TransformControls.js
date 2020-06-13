@@ -118,6 +118,11 @@ var TransformControls = function ( camera, domElement ) {
 	var cameraQuaternion = new Quaternion();
 	var cameraScale = new Vector3();
 
+	var selectionPosition = new Vector3();
+	// var selectionQuaternion = new Quaternion();
+	// var selectionQuaternionInv = new Quaternion();
+	// var selectionScale = new Vector3();
+
 	var parentPosition = new Vector3();
 	var parentQuaternion = new Quaternion();
 	var parentQuaternionInv = new Quaternion();
@@ -257,6 +262,8 @@ var TransformControls = function ( camera, domElement ) {
 
 			if (object.isSelection) {
 
+				selectionPosition = new THREE.Vector3().copy( object.center );
+
 				object = object.editableMesh;
 				parent = object.parent;
 
@@ -276,6 +283,8 @@ var TransformControls = function ( camera, domElement ) {
 			}
 
 			object.matrixWorld.decompose( worldPosition, worldQuaternion, worldScale );
+
+			worldPosition.add( selectionPosition.add( parentPosition ) );
 
 			parentQuaternionInv.copy( parentQuaternion ).inverse();
 			worldQuaternionInv.copy( worldQuaternion ).inverse();
@@ -356,24 +365,34 @@ var TransformControls = function ( camera, domElement ) {
 
 				}
 
+				var offset = new THREE.Vector3();
+
 				if (object.isSelection) {
 
 					object = object.editableMesh;
 					parent = object.parent;
+
+					offset.copy( object.position );
 
 				}
 
 				object.updateMatrixWorld();
 				parent.updateMatrixWorld();
 
-
 				positionStart.copy( object.position );
 				quaternionStart.copy( object.quaternion );
 				scaleStart.copy( object.scale );
 
 				object.matrixWorld.decompose( worldPositionStart, worldQuaternionStart, worldScaleStart );
-
 				pointStart.copy( planeIntersect.point ).sub( worldPositionStart );
+
+				pointStart.add( offset );
+
+			}
+
+			if ( this.object && this.object.isSelection ) {
+
+				this.object.prepareTransform( this.mode, this.axis, this.space );
 
 			}
 
@@ -640,6 +659,12 @@ var TransformControls = function ( camera, domElement ) {
 
 		}
 
+		if ( this.object && this.object.isSelection ) {
+
+			this.object.previewTransform( this.mode, this.axis, this.space );
+
+		}
+
 		this.dispatchEvent( changeEvent );
 		this.dispatchEvent( objectChangeEvent );
 
@@ -659,6 +684,12 @@ var TransformControls = function ( camera, domElement ) {
 		this.dragging = false;
 
 		if ( pointer.button === undefined ) this.axis = null;
+
+		if ( this.object && this.object.isSelection ) {
+
+			this.object.finishTransform( this.mode, this.axis, this.space );
+
+		}
 
 	};
 

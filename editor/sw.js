@@ -55,6 +55,7 @@ const assets = [
 	'../examples/jsm/webxr/VRButton.js',
 
 	'./manifest.json',
+	'./images/cursor.svg',
 	'./images/icon.png',
 	'./images/rotate.svg',
 	'./images/scale.svg',

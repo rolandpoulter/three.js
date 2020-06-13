@@ -625,6 +625,8 @@ Editor.prototype = {
 
 		var object = intersects.object;
 
+		var editabledMesh = object.editableMesh || object;
+
 		var point = intersects.point;
 
 		var face = intersects.face;
@@ -637,7 +639,6 @@ Editor.prototype = {
 
 		} else {
 
-			var editabledMesh = object.editableMesh || object;
 			var geometry = editabledMesh.geometry;
 
 			var points = [
@@ -658,6 +659,7 @@ Editor.prototype = {
 
 			if ( this.selectionType === 'points' ) {
 
+				// TODO: this could be better
 				operate( this.selection.points, index, null );
 
 			} else if ( this.selectionType === 'lines' ) {
@@ -686,6 +688,7 @@ Editor.prototype = {
 
 		this.signals.selectionChanged.dispatch( {
 			selection: this.selection,
+			editableMesh: editabledMesh,
 			object: object,
 			intersects: intersects
 		} );

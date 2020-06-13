@@ -12,6 +12,8 @@ function Selection( editableMesh, editor ) {
 
 	this.editableMesh = editableMesh;
 
+	this.box = new THREE.Box3();
+
 	var that = this.editableMesh;
 
 	var selection = null;
@@ -36,6 +38,9 @@ function Selection( editableMesh, editor ) {
 
 		});
 
+		geometry.computeBoundingBox();
+		this.box.copy( geometry.boundingBox ).applyMatrix4( this.editableMesh.matrixWorld );
+
 		selection = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( {
 			color: 0xffffff,
 			depthTest: false,
@@ -54,6 +59,9 @@ function Selection( editableMesh, editor ) {
 			);
 
 		});
+
+		geometry.computeBoundingBox();
+		this.box.copy( geometry.boundingBox ).applyMatrix4( this.editableMesh.matrixWorld );
 
 		selection = new THREE.Points( geometry, new THREE.PointsMaterial( {
 			sizeAttenuation: false,
@@ -78,6 +86,9 @@ function Selection( editableMesh, editor ) {
 		// var wire = new THREE.EdgesGeometry( geometry );
 		// var wire = new THREE.WireframeGeometry( geometry );
 
+		geometry.computeBoundingBox();
+		this.box.copy( geometry.boundingBox ).applyMatrix4( this.editableMesh.matrixWorld );
+
 		selection = new THREE.Line( geometry, new THREE.LineBasicMaterial( {
 			linewidth: 2,
 			color: 0xffff00,
@@ -86,7 +97,22 @@ function Selection( editableMesh, editor ) {
 
 	}
 
-	this.add( selection );
+	this.center = new THREE.Vector3();
+
+	if ( selection ) {
+
+		this.box.getCenter( this.center );
+		this.center.sub(this.editableMesh.position);
+
+		this.add( selection );
+
+	} else {
+
+		this.empty = true;
+
+	}
+
+	this.startPosition = new THREE.Vector3();
 
 }
 
@@ -95,6 +121,22 @@ Selection.prototype = Object.assign( Object.create( THREE.Object3D.prototype ), 
 	constructor: Selection,
 
 	isSelection: true,
+
+	prepareTransform: function ( mode, axis, space ) {
+
+		this.startPosition.copy( this.position );
+
+	},
+
+	previewTransform: function ( mode, axis, space ) {},
+
+	finishTransform: function ( mode, axis, space ) {
+
+		this.diffPosition = new THREE.Vector3().copy( this.startPosition ).sub( this.position );
+
+		this.editableMesh.moveGeometry( this.diffPosition.negate() );
+
+	}
 
 } );
 
