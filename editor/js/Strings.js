@@ -307,6 +307,7 @@ var Strings = function ( config ) {
 			'sidebar/settings/language': 'Language',
 			'sidebar/settings/exportPrecision': 'Export Precision',
 
+			'sidebar/settings/shortcuts/select': 'Select',
 			'sidebar/settings/shortcuts/translate': 'Translate',
 			'sidebar/settings/shortcuts/rotate': 'Rotate',
 			'sidebar/settings/shortcuts/scale': 'Scale',
@@ -318,6 +319,7 @@ var Strings = function ( config ) {
 			'sidebar/history': 'History',
 			'sidebar/history/persistent': 'persistent',
 
+			'toolbar/select': 'Select',
 			'toolbar/translate': 'Translate',
 			'toolbar/rotate': 'Rotate',
 			'toolbar/scale': 'Scale',
@@ -627,6 +629,7 @@ var Strings = function ( config ) {
 			'sidebar/settings/language': 'Langue',
 			'sidebar/settings/exportPrecision': 'Précision à l\'exportation',
 
+			'sidebar/settings/shortcuts/select': 'Sélectionner',
 			'sidebar/settings/shortcuts/translate': 'Position',
 			'sidebar/settings/shortcuts/rotate': 'Rotation',
 			'sidebar/settings/shortcuts/scale': 'Échelle',
@@ -638,6 +641,7 @@ var Strings = function ( config ) {
 			'sidebar/history': 'Historique',
 			'sidebar/history/persistent': 'permanent',
 
+			'toolbar/select': 'Sélectionner',
 			'toolbar/translate': 'Position',
 			'toolbar/rotate': 'Rotation',
 			'toolbar/scale': 'Échelle',
@@ -921,6 +925,7 @@ var Strings = function ( config ) {
 			'sidebar/settings/language': '语言',
 			'sidebar/settings/exportPrecision': '输出精度',
 
+			'sidebar/settings/shortcuts/select': '选择',
 			'sidebar/settings/shortcuts/translate': '移动',
 			'sidebar/settings/shortcuts/rotate': '旋转',
 			'sidebar/settings/shortcuts/scale': '缩放',
@@ -932,6 +937,7 @@ var Strings = function ( config ) {
 			'sidebar/history': '历史记录',
 			'sidebar/history/persistent': '本地存储',
 
+			'toolbar/select': '选择',
 			'toolbar/translate': '移动',
 			'toolbar/rotate': '旋转',
 			'toolbar/scale': '缩放',

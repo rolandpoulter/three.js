@@ -77,6 +77,10 @@ var TransformControls = function ( camera, domElement ) {
 
 	function intersectObjectWithRay( object, raycaster, includeInvisible ) {
 
+		if (!object) {
+			return false;
+		}
+
 		var allIntersections = raycaster.intersectObject( object, true );
 
 		for ( var i = 0; i < allIntersections.length; i ++ ) {
@@ -246,19 +250,32 @@ var TransformControls = function ( camera, domElement ) {
 
 		if ( this.object !== undefined ) {
 
-			this.object.updateMatrixWorld();
+			var object = this.object;
+			var parent = object.parent;
 
-			if ( this.object.parent === null ) {
+			object.updateMatrixWorld();
 
-				console.error( 'TransformControls: The attached 3D object must be a part of the scene graph.' );
+			if (object.isSelection) {
 
-			} else {
+				object = object.editableMesh;
+				parent = object.parent;
 
-				this.object.parent.matrixWorld.decompose( parentPosition, parentQuaternion, parentScale );
+				object.updateMatrixWorld();
 
 			}
 
-			this.object.matrixWorld.decompose( worldPosition, worldQuaternion, worldScale );
+			if ( parent === null ) {
+
+				console.warn( 'TransformControls: The attached 3D object must be a part of the scene graph.' );
+				console.info( this.object );
+
+			} else {
+
+				parent.matrixWorld.decompose( parentPosition, parentQuaternion, parentScale );
+
+			}
+
+			object.matrixWorld.decompose( worldPosition, worldQuaternion, worldScale );
 
 			parentQuaternionInv.copy( parentQuaternion ).inverse();
 			worldQuaternionInv.copy( worldQuaternion ).inverse();
@@ -328,14 +345,33 @@ var TransformControls = function ( camera, domElement ) {
 
 				}
 
-				this.object.updateMatrixWorld();
-				this.object.parent.updateMatrixWorld();
+				var object = this.object;
+				var parent = object.parent;
 
-				positionStart.copy( this.object.position );
-				quaternionStart.copy( this.object.quaternion );
-				scaleStart.copy( this.object.scale );
+				object.updateMatrixWorld();
 
-				this.object.matrixWorld.decompose( worldPositionStart, worldQuaternionStart, worldScaleStart );
+				if (parent) {
+
+					parent.updateMatrixWorld();
+
+				}
+
+				if (object.isSelection) {
+
+					object = object.editableMesh;
+					parent = object.parent;
+
+				}
+
+				object.updateMatrixWorld();
+				parent.updateMatrixWorld();
+
+
+				positionStart.copy( object.position );
+				quaternionStart.copy( object.quaternion );
+				scaleStart.copy( object.scale );
+
+				object.matrixWorld.decompose( worldPositionStart, worldQuaternionStart, worldScaleStart );
 
 				pointStart.copy( planeIntersect.point ).sub( worldPositionStart );
 
@@ -436,9 +472,18 @@ var TransformControls = function ( camera, domElement ) {
 
 				if ( space === 'world' ) {
 
-					if ( object.parent ) {
+					var parent = object.parent;
 
-						object.position.add( _tempVector.setFromMatrixPosition( object.parent.matrixWorld ) );
+					if (object.isSelection) {
+
+						object = object.editableMesh;
+						parent = object.parent;
+
+					}
+
+					if ( parent ) {
+
+						object.position.add( _tempVector.setFromMatrixPosition( parent.matrixWorld ) );
 
 					}
 
@@ -460,9 +505,9 @@ var TransformControls = function ( camera, domElement ) {
 
 					}
 
-					if ( object.parent ) {
+					if ( parent ) {
 
-						object.position.sub( _tempVector.setFromMatrixPosition( object.parent.matrixWorld ) );
+						object.position.sub( _tempVector.setFromMatrixPosition( parent.matrixWorld ) );
 
 					}
 
@@ -1198,9 +1243,16 @@ var TransformControlsGizmo = function () {
 
 
 		var handles = [];
-		handles = handles.concat( this.picker[ this.mode ].children );
-		handles = handles.concat( this.gizmo[ this.mode ].children );
-		handles = handles.concat( this.helper[ this.mode ].children );
+
+		if ( this.picker[ this.mode ] ) {
+			handles = handles.concat( this.picker[ this.mode ].children );
+		}
+		if ( this.gizmo[ this.mode ] ) {
+			handles = handles.concat( this.gizmo[ this.mode ].children );
+		}
+		if ( this.helper[ this.mode ] ) {
+			handles = handles.concat( this.helper[ this.mode ].children );
+		}
 
 		for ( var i = 0; i < handles.length; i ++ ) {
 

@@ -116,6 +116,12 @@ var SidebarSettingsShortcuts = function ( editor ) {
 
 				break;
 
+			case config.getKey( 'settings/shortcuts/select' ):
+
+				signals.transformModeChanged.dispatch( 'select' );
+
+				break;
+
 			case config.getKey( 'settings/shortcuts/translate' ):
 
 				signals.transformModeChanged.dispatch( 'translate' );

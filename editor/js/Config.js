@@ -25,6 +25,7 @@ var Config = function () {
 
 		'settings/history': false,
 
+		'settings/shortcuts/select': 's',
 		'settings/shortcuts/translate': 'w',
 		'settings/shortcuts/rotate': 'e',
 		'settings/shortcuts/scale': 'r',

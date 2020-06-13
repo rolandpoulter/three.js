@@ -381,11 +381,11 @@ var Viewport = function ( editor ) {
 
 	} );
 
-	signals.selectionCommandChanged.add( function ( object ) {
+	signals.selectionCommandChanged.add( function ( command ) {
 
 		polygons = [];
 
-		if ( object && object.editableMesh ) {
+		if ( command && command.editableMesh ) {
 
 			var selectionType = editor.selectionType;
 
@@ -399,15 +399,38 @@ var Viewport = function ( editor ) {
 
 			}
 
-			addPolygonObjects( object.editableMesh.mesh );
+			addPolygonObjects( command.editableMesh.mesh );
 
 		}
 
 	} );
 
-	signals.selectionChanged.add( function () {
+	signals.selectionChanged.add( function ( info ) {
 
-		setTimeout(render, 0);
+		var object = info.object;
+		var editableMesh = object.editableMesh || object;
+		var selection = editableMesh.selection;
+
+		console.log(info);
+
+		selectionBox.visible = false;
+		transformControls.detach();
+
+		if ( selection ) {
+
+			// console.log('GOT HERE', selection);
+			// box.setFromObject( selection );
+			// if ( box.isEmpty() === false ) {
+				// selectionBox.setFromObject( selection );
+				// selectionBox.visible = true;
+			// }
+
+			transformControls.attach( selection );
+
+		}
+
+		// setTimeout(render, 0);
+		render();
 
 	} );
 

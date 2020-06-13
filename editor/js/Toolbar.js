@@ -12,6 +12,22 @@ var Toolbar = function ( editor ) {
 	var container = new UIPanel();
 	container.setId( 'toolbar' );
 
+	// select tool
+
+	var selectIcon = document.createElement( 'img' );
+	selectIcon.title = strings.getKey( 'toolbar/select' );
+	selectIcon.src = 'images/cursor.svg';
+
+	var select = new UIButton();
+	// select.dom.className = 'Button';
+	select.dom.appendChild( selectIcon );
+	select.onClick( function () {
+
+		signals.transformModeChanged.dispatch( 'select' );
+
+	} );
+	container.add( select );
+
 	// translate / rotate / scale
 
 	var translateIcon = document.createElement( 'img' );
@@ -67,12 +83,14 @@ var Toolbar = function ( editor ) {
 
 	signals.transformModeChanged.add( function ( mode ) {
 
+		select.dom.classList.remove( 'selected' );
 		translate.dom.classList.remove( 'selected' );
 		rotate.dom.classList.remove( 'selected' );
 		scale.dom.classList.remove( 'selected' );
 
 		switch ( mode ) {
 
+			case 'select': select.dom.classList.add( 'selected' ); break;
 			case 'translate': translate.dom.classList.add( 'selected' ); break;
 			case 'rotate': rotate.dom.classList.add( 'selected' ); break;
 			case 'scale': scale.dom.classList.add( 'selected' ); break;

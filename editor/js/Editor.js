@@ -623,6 +623,10 @@ Editor.prototype = {
 			points: []
 		};
 
+		var object = intersects.object;
+
+		var point = intersects.point;
+
 		var face = intersects.face;
 
 		if ( this.selectionType === 'polygons' ) {
@@ -633,7 +637,8 @@ Editor.prototype = {
 
 		} else {
 
-			var geometry = intersects.object.geometry;
+			var editabledMesh = object.editableMesh || object;
+			var geometry = editabledMesh.geometry;
 
 			var points = [
 				geometry.vertices[ face.a ],
@@ -642,7 +647,7 @@ Editor.prototype = {
 			];
 
 			var distances = points.map(function ( p ) {
-				return p.distanceTo( intersects.point );
+				return p.distanceTo( point );
 			});
 
 			var minDistance = Math.min.apply( Math, distances );
@@ -666,22 +671,24 @@ Editor.prototype = {
 				var nextIndex = face[ [ 'a', 'b', 'c' ][ nextFaceIndex ] ];
 
 				// distances[ nextFaceIndex ] = Infinity;
-
 				// minDistance = Math.min.apply( Math, distances );
-
 				// var lastFaceIndex = distances.indexOf( minDistance );
-
 				// var lastIndex = face[ [ 'a', 'b', 'c' ][ lastFaceIndex ] ];
 
 				var slug = [ index, nextIndex/* , lastIndex */ ].sort().join( ',' );
 
+				// TODO: use better math to calulate which edge to pick
 				operate( this.selection.lines, slug, [ index, nextIndex/* , lastIndex */ ] );
 
 			}
 
 		}
 
-		this.signals.selectionChanged.dispatch( this.selection );
+		this.signals.selectionChanged.dispatch( {
+			selection: this.selection,
+			object: object,
+			intersects: intersects
+		} );
 
 	},
 
