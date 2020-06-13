@@ -14,9 +14,9 @@ import * as THREE from '../../../build/three.module.js';
  */
 var SetSelectionTypeCommand = function ( editor, object, selectionType, previous ) {
 
-	if (previous) {
+	if ( previous ) {
 
-		if (previous.editor !== editor) {
+		if ( previous.editor !== editor ) {
 
 			previous.editor = editor;
 
@@ -52,13 +52,13 @@ SetSelectionTypeCommand.prototype = {
 
 		this.object = object;
 
-		if (this.object.isEditableMesh) {
+		if ( this.object.isEditableMesh ) {
 
 			this.editableMesh = this.object;
 
-		} else if (this.object.isMesh) {
+		} else if ( this.object.isMesh ) {
 
-			this.editableMesh = new EditableMesh( this.object );
+			this.editableMesh = new EditableMesh( this.object, editor );
 
 		} else {
 
@@ -87,7 +87,7 @@ SetSelectionTypeCommand.prototype = {
 
 			this.name = name + ': ' + this.selectionType + ': ' + object.name;
 
-		} else if (this.selectionType) {
+		} else if ( this.selectionType ) {
 
 			this.name = name + ': ' + this.selectionType;
 
@@ -101,21 +101,30 @@ SetSelectionTypeCommand.prototype = {
 
 	setupEditableMesh: function () {
 
+		this.editor.setSelectionCommand( this );
+
 		if (this.pendingEditableMesh) {
 			return;
 		}
 
 		this.pendingEditableMesh = true;
 
-		this.editor.removeObject( this.object );
+		// var toJSON = object.toJSON;
+		// object.toJSON = function () {
+		// 	object.visible = true;
+		// 	return toJSON.call(object);
+		// };
+		// object.toJSON.original = toJSON;
+		// this.object.visible = false;
 
-		this.editor.addObject( this.editableMesh );
+		this.editor.sceneHelpers.add( this.editableMesh );
+
+		// this.editor.removeObject( this.object );
+		// this.editor.addObject( this.editableMesh );
 
 		this.editor.deselect();
 
 		this.editor.emptySelection();
-
-		this.editor.setSelectionCommand( this );
 
 	},
 
@@ -125,7 +134,10 @@ SetSelectionTypeCommand.prototype = {
 
 		this.editor.setSelectionCommand( null );
 
+		this.editableMesh.removeHandler();
+
 		this.editor.removeObject( this.editableMesh );
+		// this.editableMesh.parent.remove( this.editableMesh );
 
 		var object = this.object;
 
@@ -133,7 +145,9 @@ SetSelectionTypeCommand.prototype = {
 			// TODO:
 		}
 
-		this.editor.addObject( object );
+		// object.toJSON = object.toJSON.original || object.toJSON;
+		// object.visible = true;
+		// this.editor.addObject( object );
 
 		this.editor.select( object );
 
@@ -141,37 +155,32 @@ SetSelectionTypeCommand.prototype = {
 
 	execute: function () {
 
-		if (this.editor.mode !== this.selectionType) {
+		if ( this.editor.mode !== this.selectionType ) {
 
 			this.editor.setSelectionType( this.selectionType );
 
+			if ( this.selectionType === 'objects' ) {
+
+				this.cleanupEditableMesh( true );
+
+			} else {
+
+				this.setupEditableMesh();
+
+			}
 		}
-
-		this.setupEditableMesh();
-
-	},
-
-	complete: function () {
-
-		if (this.editor.mode !== this.lastMode) {
-
-			this.editor.setSelectionType( this.lastMode );
-
-		}
-
-		this.cleanupEditableMesh( true );
 
 	},
 
 	undo: function () {
 
-		if (this.editor.mode !== this.lastMode) {
+		if ( this.editor.mode !== this.lastMode ) {
 
 			this.editor.setSelectionType( this.lastMode );
 
 		}
 
-		if (this.lastMode === 'objects') {
+		if ( this.lastMode === 'objects' ) {
 
 			this.cleanupEditableMesh( false );
 

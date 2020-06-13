@@ -102,6 +102,7 @@ const assets = [
 
 	'./css/main.css',
 
+	'./js/EditableMesh.js',
 	'./js/EditorControls.js',
 	'./js/Storage.js',
 

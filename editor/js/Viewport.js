@@ -161,15 +161,17 @@ var Viewport = function ( editor ) {
 
 	// events
 
-	function getIntersects( point, objects, mode ) {
+	function getIntersects( point ) {
 
 		mouse.set( ( point.x * 2 ) - 1, - ( point.y * 2 ) + 1 );
 
 		raycaster.setFromCamera( mouse, camera );
 
+		var selectionType = editor.selectionType;
+
 		return raycaster.intersectObjects(
-			mode === 'polygons' ? polygons : objects,
-			mode === 'polygons',
+			selectionType !== 'objects' ? polygons : objects,
+			selectionType !== 'objects',
 		);
 
 	}
@@ -189,12 +191,12 @@ var Viewport = function ( editor ) {
 
 		if ( onDownPosition.distanceTo( onUpPosition ) === 0 ) {
 
-			var intersects = getIntersects( onUpPosition, objects, editor.mode );
+			var intersects = getIntersects( onUpPosition );
 
-			if (editor.mode !== 'objects') {
-				// debugger;
-				console.log(event.shiftKey, event.shift, intersects[0], intersects);
-				editor.setSelection(intersects);
+			if (editor.selectionType !== 'objects') {
+				// console.log(event.shiftKey, event.shift, intersects[0], intersects);
+
+				editor.setSelection( intersects[0] );
 
 			} else if ( intersects.length > 0 ) {
 
@@ -275,7 +277,7 @@ var Viewport = function ( editor ) {
 		var array = getMousePosition( container.dom, event.clientX, event.clientY );
 		onDoubleClickPosition.fromArray( array );
 
-		var intersects = getIntersects( onDoubleClickPosition, objects, 'objects' );
+		var intersects = getIntersects( onDoubleClickPosition );
 
 		if ( intersects.length > 0 ) {
 
@@ -374,17 +376,42 @@ var Viewport = function ( editor ) {
 
 	signals.selectionCommandChanged.add( function ( object ) {
 
-		if ( object === null ) {
+		polygons = [];
 
-			polygons = [];
+		if ( object.editableMesh ) {
 
-		} else if ( object.editableMesh ) {
+			var selectionType = editor.selectionType;
 
-			object.editableMesh.traverse( function ( child ) {
+			function addPolygonObjects( obj) {
 
-				polygons.push( child );
+				obj.traverse( function ( child ) {
 
-			} );
+					polygons.push( child );
+
+				} );
+
+			}
+
+			if (selectionType === 'polygons') {
+
+				addPolygonObjects( object.editableMesh.mesh );
+				// addPolygonObjects( object.editableMesh.originalMesh );
+
+			} else if (selectionType === 'lines') {
+
+				addPolygonObjects( object.editableMesh.lines );
+
+			} else if (selectionType === 'points') {
+
+				addPolygonObjects( object.editableMesh.points );
+
+			// } else {
+			//
+			// 	addPolygonObjects( object.editableMesh );
+
+			}
+
+			// console.log(selectionType, polygons);
 
 		}
 
@@ -392,7 +419,7 @@ var Viewport = function ( editor ) {
 
 	signals.selectionChanged.add( function () {
 
-		render();
+		setTimeout(render, 0);
 
 	} );
 

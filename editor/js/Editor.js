@@ -556,12 +556,6 @@ Editor.prototype = {
 
 		// this.selectionCommand = command;
 
-		this.selection = {
-			faces: [],
-			lines: [],
-			points: []
-		};
-
 		this.signals.selectionCommandChanged.dispatch( command );
 
 	},
@@ -571,6 +565,63 @@ Editor.prototype = {
 		method = method || 'toggle';
 
 		// this.selection;
+		// console.log( intersects, method, this.selectionType );
+
+		function operate(list, value) {
+			var index = list.indexOf(value);
+
+			if (method === 'toggle') {
+
+				if (index === -1) {
+
+					list.push(value);
+
+				} else {
+
+					list.splice(index, 1);
+
+				}
+
+			} else if (method === 'add') {
+
+				if (index === -1) {
+
+					list.push(value);
+
+				}
+
+			} else if (method === 'remove') {
+
+				if (index !== -1) {
+
+					list.splice(index, 1);
+
+				}
+
+			}
+		}
+
+		this.selection = this.selection || {
+			faces: [],
+			lines: [],
+			points: []
+		};
+
+		console.log('GOTH HERE', intersects);
+
+		if (this.selectionType === 'polygons') {
+
+			operate(this.selection.faces, intersects.face);
+
+		} else if (this.selectionType === 'points') {
+
+			operate(this.selection.points, intersects.index);
+
+		// } else if (this.selectionType === 'lines') {
+
+			// operate(this.selection.lines, intersects.line);
+
+		}
 
 		this.signals.selectionChanged.dispatch( this.selection );
 
@@ -718,12 +769,12 @@ Editor.prototype = {
 		this.history.fromJSON( json.history );
 		this.scripts = json.scripts;
 
-		if (this.selectionType !== json.selectionType) {
-			this.setSelectionType(json.selectionType);
-		}
-		if (this.selection !== json.selection) {
-			this.setSelection(json.selection);
-		}
+		// if (this.selectionType !== json.selectionType) {
+		// 	this.setSelectionType(json.selectionType);
+		// }
+		// if (this.selection !== json.selection) {
+		// 	this.setSelection(json.selection);
+		// }
 
 		loader.parse( json.scene, function ( scene ) {
 
@@ -765,8 +816,8 @@ Editor.prototype = {
 				toneMapping: this.config.getKey( 'project/renderer/toneMapping' ),
 				toneMappingExposure: this.config.getKey( 'project/renderer/toneMappingExposure' )
 			},
-			selectionType: this.selectionType,
-			selection: this.selection,
+			// selectionType: this.selectionType,
+			// selection: this.selection,
 			camera: this.camera.toJSON(),
 			scene: this.scene.toJSON(),
 			scripts: this.scripts,
